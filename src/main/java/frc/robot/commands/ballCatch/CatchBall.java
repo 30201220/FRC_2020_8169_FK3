@@ -13,7 +13,7 @@ import frc.robot.Robot;
 import frc.robot.subsystems.Intake;
 
 public class CatchBall extends CommandBase {
-  private Intake m_intake = new Intake();
+  private Intake m_intake;
   private boolean b = false;
   private boolean x = false;
   private boolean bOldState = false;
@@ -37,14 +37,14 @@ public class CatchBall extends CommandBase {
   public void execute() {
     if(b){
       if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B)){
-        m_intake.setMotorIntakeSpeed(0);;
+        m_intake.setMotorIntakeSpeed(0);
         if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B) != bOldState){
           b = false;
         }
       }
     } else{
       if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B)){
-        m_intake.setMotorIntakeSpeed(1);;
+        m_intake.setMotorIntakeSpeed(1);
         if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B) != bOldState){
           b = true;
         }
@@ -54,14 +54,14 @@ public class CatchBall extends CommandBase {
 
     if(x){
       if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X)){
-        m_intake.setMotorIntakeSpeed(1);;
+        m_intake.setCylinderIntake(false);
         if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X) != xOldState){
           x = false;
         }
       }
     } else{
       if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X)){
-        m_intake.setMotorIntakeSpeed(0);;
+        m_intake.setCylinderIntake(true);
         if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X) != xOldState){
           x = true;
         }

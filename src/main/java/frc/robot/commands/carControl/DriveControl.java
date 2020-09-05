@@ -16,9 +16,6 @@ import frc.robot.subsystems.DriveTrain;
 public class DriveControl extends CommandBase {
   private final DriveTrain m_driveTrain;
 
-  /**
-   * Creates a new driveControl.
-   */
   public DriveControl(DriveTrain driveTrain) {
     m_driveTrain = driveTrain;
     addRequirements(m_driveTrain);

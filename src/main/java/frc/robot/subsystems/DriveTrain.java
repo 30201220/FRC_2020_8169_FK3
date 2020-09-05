@@ -14,18 +14,18 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Tools;
+import frc.robot.commands.carControl.DriveControl;
 
 public class DriveTrain extends SubsystemBase {
-  private CANSparkMax motorLeft1 = new CANSparkMax(Constants.MOTOR_LEFT_1_ID, MotorType.kBrushless);
-  private CANSparkMax motorLeft2 = new CANSparkMax(Constants.MOTOR_LEFT_2_ID, MotorType.kBrushless);
-  private CANSparkMax motorRight1 = new CANSparkMax(Constants.MOTOR_RIGHT_1_ID, MotorType.kBrushless);
-  private CANSparkMax motorRight2 = new CANSparkMax(Constants.MOTOR_RIGHT_2_ID, MotorType.kBrushless);
+  public static CANSparkMax motorLeft1 = new CANSparkMax(Constants.MOTOR_LEFT_1_ID, MotorType.kBrushless);
+  public static CANSparkMax motorLeft2 = new CANSparkMax(Constants.MOTOR_LEFT_2_ID, MotorType.kBrushless);
+  public static CANSparkMax motorRight1 = new CANSparkMax(Constants.MOTOR_RIGHT_1_ID, MotorType.kBrushless);
+  public static CANSparkMax motorRight2 = new CANSparkMax(Constants.MOTOR_RIGHT_2_ID, MotorType.kBrushless);
 
   private CANEncoder encoderLeft = new CANEncoder(motorLeft1);
   private CANEncoder encoderRight = new CANEncoder(motorRight1);
   
   public DriveTrain() {
-
   }
   
   @Override
@@ -38,8 +38,8 @@ public class DriveTrain extends SubsystemBase {
   }
   
   public void setMotorRightSpeed(final double speedr){
-    motorRight1.set(Tools.range(speedr, 1, -1));
-    motorRight2.set(Tools.range(speedr, 1, -1));
+    motorRight1.set(-Tools.range(speedr, 1, -1));
+    motorRight2.set(-Tools.range(speedr, 1, -1));
   }
 
   public void setMotorSpeed(final double speedl, final double speedr){

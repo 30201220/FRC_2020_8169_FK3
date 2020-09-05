@@ -7,14 +7,27 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.commands.carControl.*;
 import frc.robot.commands.auto.*;
 import frc.robot.commands.ballCatch.CatchBall;
 import frc.robot.commands.ballShoot.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -27,13 +40,13 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveTrain m_driverTrain = new DriveTrain();
+  private final DriveTrain m_driveTrain = new DriveTrain();
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
   private final Climber climber = new Climber();
 
   private final Auto m_auto = new Auto();
-  private final DriveControl m_driveControl = new DriveControl(m_driverTrain);
+  private final DriveControl m_driveControl = new DriveControl(m_driveTrain);
   private final ShootManual m_ShootManual = new ShootManual(m_shooter);
   private final CatchBall m_catchBall = new CatchBall(m_intake);
 
@@ -59,7 +72,9 @@ public class RobotContainer {
   private Button oButtonSTART = new JoystickButton(this.operatorController, Constants.BUTTON_START);
   private Button oButtonBACK = new JoystickButton(this.operatorController, Constants.BUTTON_BACK);
 
-
+  private String trajectoryJSON = "paths/Test.wpilib.json";
+  private Trajectory mTrajectory;
+  private final DriveTrainAuto mDriveTrainAuto = new DriveTrainAuto();
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -67,6 +82,13 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    setDefaultCommand();
+    readTrajectoryPath();
+  }
+
+  public void setDefaultCommand(){
+    m_driveTrain.setDefaultCommand(m_driveControl);
+    m_intake.setDefaultCommand(m_catchBall);
   }
 
   /**
@@ -79,6 +101,17 @@ public class RobotContainer {
     
   }
 
+  public void readTrajectoryPath(){
+    try {
+      System.out.println("mTest");
+      System.out.println(Filesystem.getDeployDirectory().toPath());
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      mTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
+  }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -86,8 +119,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    System.out.println("getAutonomousCommand Begin...");
+
     // An ExampleCommand will run in autonomous
-    return m_auto;
+    RamseteCommand ramseteCommand = new RamseteCommand(mTrajectory,mDriveTrainAuto::getPose,new RamseteController(2, 0.7),new DifferentialDriveKinematics(0.69), mDriveTrainAuto::tankDriveVolts, mDriveTrainAuto);
+
+    // Run path following command, then stop at the end.
+    return ramseteCommand.andThen(() -> mDriveTrainAuto.tankDriveVolts(0, 0));
   }
 
   public boolean getOperatorButton(int axis) {
