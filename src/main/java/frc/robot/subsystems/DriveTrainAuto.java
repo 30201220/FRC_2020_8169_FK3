@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
@@ -55,15 +56,16 @@ public class DriveTrainAuto extends SubsystemBase {
   public DriveTrainAuto(){
     m_ahrs.reset();
     resetEncoders();
-    m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(m_ahrs.getAngle()));
+    m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(-m_ahrs.getAngle()));
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_odometry.update(Rotation2d.fromDegrees(m_ahrs.getAngle()), getLeftEncoderPosition(),getRightEncoderPosition());
-    SmartDashboard.putNumber("lV", getLeftEncoderVelocity());
-    SmartDashboard.putNumber("rV", getRightEncoderVelocity());
+    m_odometry.update(Rotation2d.fromDegrees(-m_ahrs.getAngle()),
+    getLeftEncoderVelocity() * Math.PI * Units.inchesToMeters(6.0) / 60,
+    getRightEncoderVelocity() * Math.PI * Units.inchesToMeters(6.0) / 60
+    );
   }
 
   public void resetEncoders() {
@@ -72,7 +74,7 @@ public class DriveTrainAuto extends SubsystemBase {
   }
 
   public double getLeftEncoderPosition(){
-    return encoderLeft.getPosition()/Constants.TOUCHBOX_RATIO;
+    return -encoderLeft.getPosition()/Constants.TOUCHBOX_RATIO;
   }
 
   public double getRightEncoderPosition(){
@@ -97,7 +99,7 @@ public class DriveTrainAuto extends SubsystemBase {
 
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
-    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(m_ahrs.getAngle()));
+    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(-m_ahrs.getAngle()));
   }
 
   public void arcadeDrive(double fwd, double rot) {
@@ -105,8 +107,15 @@ public class DriveTrainAuto extends SubsystemBase {
   }
 
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    m_leftMotors.setVoltage(leftVolts);
-    m_rightMotors.setVoltage(-rightVolts);
+    System.out.println("is running");
+    m_leftMotors.set(-leftVolts/12);
+    m_rightMotors.set(rightVolts/12);
+    System.out.println("LOpt"+-leftVolts);
+    System.out.println("ROpt"+rightVolts);
+    SmartDashboard.putNumber("leftVolts", leftVolts/12);
+    SmartDashboard.putNumber("rightVolts", rightVolts/12);
+    SmartDashboard.putNumber("lV", getLeftEncoderVelocity());
+    SmartDashboard.putNumber("rV", getRightEncoderVelocity());
     m_drive.feed();
   }
 

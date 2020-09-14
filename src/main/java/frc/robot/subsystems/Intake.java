@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void setMotorIntakeSpeed(final double speed){
-    motorIntake.set(Tools.range(speed, 1, 0) * Constants.N_MOTOR_INTAKE_SPEED);
+    motorIntake.set(-Tools.range(speed, 1, 0) * Constants.N_MOTOR_INTAKE_SPEED);
   }
 
   public void setCylinderIntake(final boolean cy){

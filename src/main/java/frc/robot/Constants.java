@@ -62,9 +62,9 @@ public final class Constants {
   /********************************************************* */
 
 public static final double TURNING_RATE = 0.4;
-public static final double N_MOTOR_INTAKE_SPEED = -0.4;
+public static final double N_MOTOR_INTAKE_SPEED = 0.4;
 
-public static final double TOUCHBOX_RATIO = 10.75;
+public static final double TOUCHBOX_RATIO = 10.71;
   public static final double HIGRIP_WHEEL = 478.536;
     
 }

@@ -122,7 +122,13 @@ public class RobotContainer {
     System.out.println("getAutonomousCommand Begin...");
 
     // An ExampleCommand will run in autonomous
-    RamseteCommand ramseteCommand = new RamseteCommand(mTrajectory,mDriveTrainAuto::getPose,new RamseteController(2, 0.7),new DifferentialDriveKinematics(0.69), mDriveTrainAuto::tankDriveVolts, mDriveTrainAuto);
+    RamseteCommand ramseteCommand = new RamseteCommand(
+    mTrajectory,
+    mDriveTrainAuto::getPose,
+    new RamseteController(2, 0.7),
+    new DifferentialDriveKinematics(0.57), 
+    mDriveTrainAuto::tankDriveVolts, 
+    mDriveTrainAuto);
 
     // Run path following command, then stop at the end.
     return ramseteCommand.andThen(() -> mDriveTrainAuto.tankDriveVolts(0, 0));
