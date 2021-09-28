@@ -9,19 +9,15 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Tools;
 
-public class Intake extends SubsystemBase {
-  private CANSparkMax motorIntake = new CANSparkMax(Constants.MOTOR_INTAKE_ID, MotorType.kBrushless);
-  private Solenoid cylinderIntake = new Solenoid(Constants.CYLINDER_INTAKE_ID);
+public class Store extends SubsystemBase {
+  private VictorSPX motorFisher = new VictorSPX(Constants.MOTOR_SHOOTER_FISHER_ID); 
 
-  public Intake() {
+  public Store() {
 
   }
 
@@ -30,12 +26,8 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public void setMotorIntakeSpeed(final double speed){
-    motorIntake.set(Tools.range(speed, 1, 0) * Constants.N_MOTOR_INTAKE_SPEED);
-  }
-
-  public void setCylinderIntake(final boolean cy){
-    cylinderIntake.set(cy);
+  public void setMotorFisherSpeed(final double speed){
+    motorFisher.set(ControlMode.PercentOutput,Tools.range(speed, 1, -1));
   }
   
 }

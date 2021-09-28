@@ -7,23 +7,27 @@
 
 package frc.robot.commands.ballCatch;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Store;
 
 public class CatchBall extends CommandBase {
   private Intake m_intake;
+  private Store m_store;
   private boolean b = false;
   private boolean x = false;
   private boolean bOldState = false;
   private boolean xOldState = false;
-  /**
-   * Creates a new CatchBall.
-   */
-  public CatchBall(Intake intake) {
+
+  public CatchBall(Intake intake, Store store) {
     m_intake = intake;
+    m_store = store;
     addRequirements(m_intake);
+    addRequirements(m_store);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -35,39 +39,49 @@ public class CatchBall extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    boolean statusButtonB = Robot.m_robotContainer.getOperatorButton(Constants.BUTTON_B);
     if(b){
-      if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B)){
+      if(statusButtonB){
         m_intake.setMotorIntakeSpeed(0);
-        if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B) != bOldState){
+        if(statusButtonB != bOldState){
           b = false;
         }
       }
     } else{
-      if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B)){
+      if(statusButtonB){
         m_intake.setMotorIntakeSpeed(1);
-        if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B) != bOldState){
+        if(statusButtonB != bOldState){
           b = true;
         }
       }
     }
-    bOldState = Robot.m_robotContainer.getDriverButton(Constants.BUTTON_B);
-
+    bOldState = statusButtonB;
+    boolean statusButtonX = Robot.m_robotContainer.getOperatorButton(Constants.BUTTON_X);
     if(x){
-      if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X)){
+      if(statusButtonX){
         m_intake.setCylinderIntake(false);
-        if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X) != xOldState){
+        if(statusButtonX != xOldState){
           x = false;
         }
       }
     } else{
-      if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X)){
+      if(statusButtonX){
         m_intake.setCylinderIntake(true);
-        if(Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X) != xOldState){
+        if(statusButtonX != xOldState){
           x = true;
         }
       }
     }
-    xOldState = Robot.m_robotContainer.getDriverButton(Constants.BUTTON_X);
+    xOldState = statusButtonX;
+    SmartDashboard.putBoolean("IntakeMotor", x);
+
+    if(Robot.m_robotContainer.getOperatorButton(Constants.BUTTON_RB)) {
+      m_store.setMotorFisherSpeed(1);
+    } else if(Robot.m_robotContainer.getOperatorButton(Constants.BUTTON_LB)) {
+      m_store.setMotorFisherSpeed(-1);
+    } else {
+      m_store.setMotorFisherSpeed(0);
+    }
   }
 
   // Called once the command ends or is interrupted.

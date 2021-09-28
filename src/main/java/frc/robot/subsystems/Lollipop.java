@@ -8,21 +8,17 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Tools;
 
-public class Intake extends SubsystemBase {
-  private CANSparkMax motorIntake = new CANSparkMax(Constants.MOTOR_INTAKE_ID, MotorType.kBrushless);
-  private Solenoid cylinderIntake = new Solenoid(Constants.CYLINDER_INTAKE_ID);
-
-  public Intake() {
-
+public class Lollipop extends SubsystemBase {
+  private TalonSRX motorLollipop = new TalonSRX(Constants.MOTOR_LOLLIPOP_ID); 
+  private Solenoid cylinderLollipop = new Solenoid(Constants.CYLINDER_LOLLIPOP_ID);
+  
+  public Lollipop() {
   }
 
   @Override
@@ -30,12 +26,11 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public void setMotorIntakeSpeed(final double speed){
-    motorIntake.set(Tools.range(speed, 1, 0) * Constants.N_MOTOR_INTAKE_SPEED);
+  public void setMotorLollipop(final double speed){
+    motorLollipop.set(ControlMode.PercentOutput, speed);
   }
 
-  public void setCylinderIntake(final boolean cy){
-    cylinderIntake.set(cy);
+  public void setCylinderLollipop(boolean status){
+    cylinderLollipop.set(status);
   }
-  
 }

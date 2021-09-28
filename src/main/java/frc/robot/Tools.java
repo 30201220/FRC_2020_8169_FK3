@@ -3,6 +3,7 @@ package frc.robot;
 public class Tools{
 
   public Tools(){
+
   }
 
   public static double range(final double value,final double max,final double min){

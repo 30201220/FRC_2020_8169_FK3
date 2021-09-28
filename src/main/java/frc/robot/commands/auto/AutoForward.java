@@ -5,43 +5,40 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands.carControl;
+package frc.robot.commands.auto;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Ultrasonic.Unit;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
 
-public class DriveControl extends CommandBase {
-  private final DriveTrain m_driveTrain;
-
-  public DriveControl(DriveTrain driveTrain) {
+public class AutoForward extends CommandBase {
+  private DriveTrain m_driveTrain;
+  private double m_meter;
+  private double P = 0.08;
+  /**
+   * Creates a new AutoForword.
+   */
+  public AutoForward(DriveTrain driveTrain, double meter) {
     m_driveTrain = driveTrain;
     addRequirements(m_driveTrain);
+    m_meter = meter;
+    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_driveTrain.setChassisSpeed(0, 0);
+    m_driveTrain.zeroEncoder();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double triggerVal = Robot.m_robotContainer.getDriverRawAxis(Constants.RIGHT_TRIGGER) - Robot.m_robotContainer.getDriverRawAxis(Constants.LEFT_TRIGGER);
-    double stick = Robot.m_robotContainer.getDriverRawAxis(Constants.LEFT_STICK_X) * (Constants.TURNING_RATE);
-    
-    double speedl = (triggerVal + stick);
-    double speedr = (triggerVal - stick);
-    
-    m_driveTrain.setChassisSpeed(speedl, speedr);
-
-    SmartDashboard.putNumber("speedl", speedl);
-    SmartDashboard.putNumber("speedr", speedr);
-    SmartDashboard.putNumber("LeftEncoder", m_driveTrain.getLeftMotorsPosition());
-    SmartDashboard.putNumber("RightEncoder", m_driveTrain.getRightMotorsPosition());
+    m_driveTrain.setChassisSpeed(
+      PIDInstance(m_meter - m_driveTrain.getLeftMotorsPosition() * Units.inchesToMeters(6) * Math.PI/10.75, P), 
+      PIDInstance(m_meter - m_driveTrain.getRightMotorsPosition() * Units.inchesToMeters(6) * Math.PI/10.75, P)
+    );
   }
 
   // Called once the command ends or is interrupted.
@@ -53,6 +50,10 @@ public class DriveControl extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return Math.abs(m_driveTrain.getLeftMotorsPosition() - m_meter) <= 0.01 && Math.abs(m_driveTrain.getRightMotorsPosition() - m_meter) <= 0.01;
+  }
+
+  private double PIDInstance(double error, double P){
+    return P*error;
   }
 }

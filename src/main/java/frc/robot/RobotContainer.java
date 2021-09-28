@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
@@ -22,13 +21,16 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.commands.carControl.*;
-import frc.robot.commands.climb.Climbing;
+import frc.robot.commands.turnTable.turnOnColor;
 import frc.robot.commands.auto.*;
 import frc.robot.commands.ballCatch.CatchBall;
 import frc.robot.commands.ballShoot.*;
+import frc.robot.commands.carClimb.CarClimb;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -43,14 +45,15 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveTrain m_driveTrain = new DriveTrain();
   private final Intake m_intake = new Intake();
-  private final Shooter m_shooter = new Shooter(); 
+  private final Shooter m_shooter = new Shooter();
   private final Climber m_climber = new Climber();
+  private final Store m_store = new Store();
+  private final Lollipop m_lollipop = new Lollipop();
 
-  private final Auto m_auto = new Auto();
   private final DriveControl m_driveControl = new DriveControl(m_driveTrain);
-  private final ShootManual m_ShootManual = new ShootManual(m_shooter);
-  private final CatchBall m_catchBall = new CatchBall(m_intake);
-  private final Climbing m_climbing = new Climbing(m_climber);
+  private final ShootManual m_shoot = new ShootManual(m_shooter);
+  private final CatchBall m_catchBall = new CatchBall(m_intake, m_store);
+  private final CarClimb m_carclimb = new CarClimb(m_climber);
 
   private final XboxController driverController = new XboxController(Constants.XBOX_DRIVER_ID);
   private final XboxController operatorController = new XboxController(Constants.XBOX_OPERATOR_ID);
@@ -74,10 +77,6 @@ public class RobotContainer {
   private Button oButtonSTART = new JoystickButton(this.operatorController, Constants.BUTTON_START);
   private Button oButtonBACK = new JoystickButton(this.operatorController, Constants.BUTTON_BACK);
 
-  private String trajectoryJSON = "paths/Test.wpilib.json";
-  private Trajectory mTrajectory;
-  private final DriveTrainAuto mDriveTrainAuto = new DriveTrainAuto();
-
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
@@ -85,13 +84,13 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     setDefaultCommand();
-    readTrajectoryPath();
   }
 
   public void setDefaultCommand(){
-   // m_driveTrain.setDefaultCommand(m_driveControl);
+    m_driveTrain.setDefaultCommand(m_driveControl);
     m_intake.setDefaultCommand(m_catchBall);
-    m_climber.setDefaultCommand(m_climbing);
+    m_climber.setDefaultCommand(m_carclimb);
+    m_shooter.setDefaultCommand(m_shoot);
   }
 
   /**
@@ -101,20 +100,10 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    
+    this.dButtonSTART.whenPressed(new turnOnColor(m_lollipop));
+    //this.oButtonSTART.whenPressed(new ShootManual(m_shooter));
+    //this.dButtonA.whenPressed(new CarClimb(m_climber));
   }
-
-  public void readTrajectoryPath(){
-    try {
-      System.out.println("mTest");
-      System.out.println(Filesystem.getDeployDirectory().toPath());
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      mTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }
-  }
-
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -122,19 +111,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    System.out.println("getAutonomousCommand Begin...");
-
-    // An ExampleCommand will run in autonomous
-    RamseteCommand ramseteCommand = new RamseteCommand(
-    mTrajectory,
-    mDriveTrainAuto::getPose,
-    new RamseteController(2, 0.7),
-    new DifferentialDriveKinematics(0.57), 
-    mDriveTrainAuto::tankDriveVolts, 
-    mDriveTrainAuto);
-
-    // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> mDriveTrainAuto.tankDriveVolts(0, 0));
+    //return new ParallelCommandGroup(new AutoShootBall(m_shooter, m_store, m_intake), new AutoForward(m_driveTrain, 4.5));
+    return new AutoNav(m_driveTrain, m_intake, m_store);
   }
 
   public boolean getOperatorButton(int axis) {
