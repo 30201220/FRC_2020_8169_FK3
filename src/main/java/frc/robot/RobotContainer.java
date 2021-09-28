@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.commands.carControl.*;
+import frc.robot.commands.climb.Climbing;
 import frc.robot.commands.auto.*;
 import frc.robot.commands.ballCatch.CatchBall;
 import frc.robot.commands.ballShoot.*;
@@ -42,13 +43,14 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveTrain m_driveTrain = new DriveTrain();
   private final Intake m_intake = new Intake();
-  private final Shooter m_shooter = new Shooter();
-  private final Climber climber = new Climber();
+  private final Shooter m_shooter = new Shooter(); 
+  private final Climber m_climber = new Climber();
 
   private final Auto m_auto = new Auto();
   private final DriveControl m_driveControl = new DriveControl(m_driveTrain);
   private final ShootManual m_ShootManual = new ShootManual(m_shooter);
   private final CatchBall m_catchBall = new CatchBall(m_intake);
+  private final Climbing m_climbing = new Climbing(m_climber);
 
   private final XboxController driverController = new XboxController(Constants.XBOX_DRIVER_ID);
   private final XboxController operatorController = new XboxController(Constants.XBOX_OPERATOR_ID);
@@ -87,8 +89,9 @@ public class RobotContainer {
   }
 
   public void setDefaultCommand(){
-    m_driveTrain.setDefaultCommand(m_driveControl);
+   // m_driveTrain.setDefaultCommand(m_driveControl);
     m_intake.setDefaultCommand(m_catchBall);
+    m_climber.setDefaultCommand(m_climbing);
   }
 
   /**

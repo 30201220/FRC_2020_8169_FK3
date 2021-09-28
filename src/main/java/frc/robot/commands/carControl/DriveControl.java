@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveTrain;
 
 public class DriveControl extends CommandBase {
@@ -36,7 +37,7 @@ public class DriveControl extends CommandBase {
     double speedl = (triggerVal + stick);
     double speedr = (triggerVal - stick);
     
-    m_driveTrain.setMotorSpeed(speedl, speedr);
+    m_driveTrain.setMotorSpeed(Robot.m_robotContainer.getDriverRawAxis(Constants.LEFT_STICK_Y), speedr);
 
     SmartDashboard.putNumber("speedl", speedl);
     SmartDashboard.putNumber("speedr", speedr);

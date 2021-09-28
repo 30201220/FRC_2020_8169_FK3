@@ -17,10 +17,10 @@ import frc.robot.Tools;
 import frc.robot.commands.carControl.DriveControl;
 
 public class DriveTrain extends SubsystemBase {
-  public static CANSparkMax motorLeft1 = new CANSparkMax(Constants.MOTOR_LEFT_1_ID, MotorType.kBrushless);
-  public static CANSparkMax motorLeft2 = new CANSparkMax(Constants.MOTOR_LEFT_2_ID, MotorType.kBrushless);
-  public static CANSparkMax motorRight1 = new CANSparkMax(Constants.MOTOR_RIGHT_1_ID, MotorType.kBrushless);
-  public static CANSparkMax motorRight2 = new CANSparkMax(Constants.MOTOR_RIGHT_2_ID, MotorType.kBrushless);
+  public static final CANSparkMax motorLeft1 = new CANSparkMax(Constants.MOTOR_LEFT_1_ID, MotorType.kBrushless);
+  public static final CANSparkMax motorLeft2 = new CANSparkMax(Constants.MOTOR_LEFT_2_ID, MotorType.kBrushless);
+  public static final CANSparkMax motorRight1 = new CANSparkMax(Constants.MOTOR_RIGHT_1_ID, MotorType.kBrushless);
+  public static final CANSparkMax motorRight2 = new CANSparkMax(Constants.MOTOR_RIGHT_2_ID, MotorType.kBrushless);
 
   private CANEncoder encoderLeft = new CANEncoder(motorLeft1);
   private CANEncoder encoderRight = new CANEncoder(motorRight1);
@@ -32,6 +32,7 @@ public class DriveTrain extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
   public void setMotorLeftSpeed(final double speedl){
     motorLeft1.set(Tools.range(speedl, 1, -1));
     motorLeft2.set(Tools.range(speedl, 1, -1));
